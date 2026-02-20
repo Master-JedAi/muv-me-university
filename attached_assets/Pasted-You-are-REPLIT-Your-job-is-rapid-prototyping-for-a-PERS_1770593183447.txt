@@ -1,0 +1,122 @@
+You are REPLIT. Your job is rapid prototyping for a PERSONAL mobile-first experience using Expo, plus a minimal backend, plus complete handoff docs.
+You must NOT do final hardening. You must NOT pause to ask for confirmation. Execute end-to-end.
+
+PROJECT GOAL:
+Build an Expo (React Native) app that feels like “speak it into existence” for an adaptive learning platform with verifiable evidence and modular plugins.
+Option B NOW: realtime transcription via OpenAI Realtime API transcription sessions.
+Option C LATER: upgrade path to realtime conversations (speech-to-speech) without changing kernel contracts.
+
+STACK:
+- Expo + React Native + TypeScript
+- Expo Router or React Navigation (Tabs)
+- Local-first persistence (SQLite via expo-sqlite or similar)
+- Minimal backend: Node/Express (or Next API routes if simpler) running in Replit
+- Use a “Kernel API” service in backend that owns: learner state, mastery, weak points, evidence ledger, portfolio registry, pins.
+- Implement three plugins behind strict tool contracts:
+  1) quiz_engine.v1
+  2) game_engine.v1
+  3) search_ingestion.v1
+- Implement OpenAI integration stubs in Replit: the client will not hold a permanent API key.
+
+MOBILE UX REQUIREMENTS (PERSONAL USE FIRST):
+- Bottom tabs: Dashboard | Speak | Learn | Evidence | Profile
+- Large tap targets, calm UI, minimal clutter.
+- “Pin it for later” must be one tap AND voice command.
+- Offline-friendly: queue events locally and sync to backend when online.
+
+VOICE (OPTION B NOW: REALTIME TRANSCRIPTION):
+- Implement a voice pipeline in the Expo app:
+  - Push-to-talk button on Speak tab
+  - While held (or toggled), capture microphone audio and stream frames to a backend “Realtime Transcription Gateway”.
+  - Display live transcript deltas in the UI.
+- Backend gateway:
+  - Connects to OpenAI Realtime API in transcription mode and relays transcript deltas to the mobile app.
+  - IMPORTANT: the OpenAI API key remains only on the backend.
+  - The gateway can use WebSocket or WebRTC internally; for the prototype, choose the simplest stable approach that works in a Replit environment.
+  - The transcription session must use the Realtime “transcription” session type per OpenAI docs.
+
+(Reference for you, REPLIT: OpenAI Realtime supports transcription sessions over WebSocket/WebRTC; implement transcription-only sessions first, not full voice-to-voice.)
+
+ORCHESTRATOR (“SPEAK IT INTO EXISTENCE”):
+- After transcript is finalized, send transcript text to backend orchestrator endpoint:
+  POST /orchestrate { learner_id, transcript, policy_flags }
+- Orchestrator in prototype can be a deterministic planner plus stubs, BUT must be designed to be replaced by OpenAI Responses API tool-calling later.
+- Orchestrator responsibilities:
+  1) Parse intent: create course, run placement quiz, generate games for weak points, checkpoint, final exam, create portfolio entry.
+  2) Call plugin functions (quiz/game/search) via strict schemas.
+  3) Write EvidenceArtifacts to Evidence Ledger.
+  4) Propose mastery deltas -> Kernel accepts/rejects using deterministic rules.
+
+KERNEL (CORE) BUILT-IN TABLES:
+- Learner
+- Concept, LearningGraphEdge
+- CourseBlueprint, CourseRun
+- MasteryState (score, stability, last_demonstrated_at)
+- WeakPoint (typed, severity, signals, evidence_refs)
+- EvidenceArtifact (hash, integrity, session_id, tags, metrics)
+- PortfolioItem (references artifacts)
+- Pin (deferred curiosity tokens)
+- EventLog (event envelope)
+
+PLUGIN CONTRACTS (IMPLEMENT AS LOCAL MODULES BUT BEHIND INTERFACES):
+quiz_engine.v1:
+- quiz.create(session_id, learner_id, concept_ids, quiz_type, policy) -> quiz_id + question payload
+- quiz.grade(session_id, attempt_id, responses) -> proposed mastery deltas + attempt artifact
+
+game_engine.v1:
+- game.generate(session_id, learner_id, weak_point_ids, vibe, templates_allowed, policy) -> game_run payload
+- game.report_outcome(session_id, game_run_id, outcome) -> proposed mastery deltas + game artifact
+
+search_ingestion.v1:
+- ingest.create_evidence_pack(topic, audience_level, source_policy) -> evidence_pack artifact (prototype placeholders ok)
+- ingest.update_evidence_pack(evidence_pack_id, source_policy) -> new version + artifact
+
+MASTERY ACCEPTANCE (KERNEL RULES):
+- Plugins can only PROPOSE mastery deltas.
+- Kernel accepts/rejects with deterministic rules:
+  - confidence gate
+  - artifact integrity gate
+  - delta caps
+  - stability requirements for misconceptions/recall gaps
+
+WEAK POINT DETECTION (KERNEL RULES):
+- Compute weak points using recorded signals:
+  - repeated errors => misconception
+  - slow correct => fragile_understanding
+  - transfer fail => transfer_failure
+  - signal_sorter errors => signal_prioritization
+  - many pins/interruptions => attention_drift
+
+EVIDENCE / NOT-FAKEABLE:
+- Every quiz/game generates EvidenceArtifact entries with:
+  - session_id, timestamps, hash placeholder, integrity signals, metrics
+- Evidence view shows replayable logs (text-based is fine for prototype).
+
+SCALE-TO-OPTION-C LATER (IMPORTANT DESIGN):
+- Build Voice layer as a “voice_capture” module with two modes:
+  - Mode B: transcription streaming (now)
+  - Mode C: realtime conversations voice agent (later)
+- The kernel/plugin contracts MUST NOT change when switching B->C.
+
+HANDOFF DOCS (REQUIRED):
+Write these files in repo:
+- /docs/handoff/latest/MOBILE_ARCHITECTURE.md
+- /docs/handoff/latest/KERNEL_DATA_MODEL.md
+- /docs/handoff/latest/PLUGIN_CONTRACTS.json (manifests + function schemas)
+- /docs/handoff/latest/EVENT_SCHEMA.md
+- /docs/handoff/latest/VOICE_PIPELINE.md (Option B now, Option C later)
+- /docs/handoff/latest/SECURITY_PERMISSIONS.md (scopes + invariants)
+- /docs/handoff/latest/TODO_WARP.md (productionization checklist)
+
+GIT / HANDOFF PROCESS (NO PAUSES):
+1) Initialize git if needed.
+2) Create and switch to branch: handoff
+3) Commit code + docs
+4) Ensure /docs/handoff/latest contains latest specs
+5) Push branch handoff (or provide exact commands if push not available)
+
+DELIVERABLE:
+- Running Expo app in Replit (or runnable via instructions)
+- Backend API in Replit
+- Full handoff docs under /docs/handoff/latest
+Do not ask questions. Make reasonable defaults.

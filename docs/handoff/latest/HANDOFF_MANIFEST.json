@@ -1,0 +1,131 @@
+{
+  "project": "MŪV (Me Uni-Versity)",
+  "version": "1.0.0",
+  "date": "2026-02-20",
+  "description": "Personal adaptive learning platform with voice-first interaction",
+  "files": [
+    {
+      "name": "HANDOFF_MANIFEST.json",
+      "description": "This manifest file listing all handoff documents and project metadata"
+    },
+    {
+      "name": "MOBILE_ARCHITECTURE.md",
+      "description": "Mobile client architecture: navigation, state management, providers, offline support"
+    },
+    {
+      "name": "VOICE_PIPELINE.md",
+      "description": "Voice capture, transcription pipeline, WebSocket protocol, and upgrade path"
+    },
+    {
+      "name": "RIVE_ASSISTANT.md",
+      "description": "Animated assistant system: states, animations, components, and Rive upgrade path"
+    },
+    {
+      "name": "KERNEL_DATA_MODEL.md",
+      "description": "Database schema, kernel mastery rules, and weak point detection"
+    },
+    {
+      "name": "EVENT_SCHEMA.md",
+      "description": "Event log schema and event type definitions"
+    },
+    {
+      "name": "PLUGIN_CONTRACTS.json",
+      "description": "Plugin API contracts for quiz engine, game engine, and search ingestion"
+    },
+    {
+      "name": "SECURITY_PERMISSIONS.md",
+      "description": "Security model, permissions, and access control documentation"
+    },
+    {
+      "name": "TODO_WARP.md",
+      "description": "Productionization checklist including mobile-specific and realtime TODO items"
+    }
+  ],
+  "key_modules": [
+    {
+      "path": "lib/muv-context.tsx",
+      "role": "Central state provider for learner data, mastery, weak points, pins, evidence, courses"
+    },
+    {
+      "path": "lib/assistant-context.tsx",
+      "role": "AssistantProvider managing animated assistant state (idle, listening, thinking, speaking, celebrate, pin_ack)"
+    },
+    {
+      "path": "lib/voice-capture.ts",
+      "role": "VoiceCapture abstraction with record_transcribe and realtime_stream modes"
+    },
+    {
+      "path": "lib/offline-queue.ts",
+      "role": "Offline event queue with AsyncStorage persistence and periodic sync"
+    },
+    {
+      "path": "lib/query-client.ts",
+      "role": "React Query client and API URL helpers"
+    },
+    {
+      "path": "components/AnimatedAssistant.tsx",
+      "role": "LargeAssistant (80px, Speak tab) and AssistantBubble (floating, other tabs) with reanimated animations"
+    },
+    {
+      "path": "server/kernel.ts",
+      "role": "Mastery acceptance rules, weak point detection, evidence recording"
+    },
+    {
+      "path": "server/orchestrator.ts",
+      "role": "Intent parsing and plugin dispatch"
+    },
+    {
+      "path": "server/voice-gateway.ts",
+      "role": "WebSocket voice gateway at /ws/voice"
+    },
+    {
+      "path": "server/storage.ts",
+      "role": "Database access layer using Drizzle ORM"
+    },
+    {
+      "path": "server/routes.ts",
+      "role": "Express REST API route definitions"
+    },
+    {
+      "path": "server/plugins/quiz-engine.ts",
+      "role": "Quiz generation and grading plugin"
+    },
+    {
+      "path": "server/plugins/game-engine.ts",
+      "role": "Interactive learning game plugin"
+    },
+    {
+      "path": "server/plugins/search-ingestion.ts",
+      "role": "External resource search and evidence pack creation"
+    },
+    {
+      "path": "shared/schema.ts",
+      "role": "Drizzle ORM schema definitions and Zod validation"
+    }
+  ],
+  "tech_stack": {
+    "frontend": {
+      "framework": "Expo SDK 54 + React Native",
+      "language": "TypeScript",
+      "routing": "Expo Router (file-based)",
+      "state": "React Context (MuvProvider, AssistantProvider) + React Query (@tanstack/react-query)",
+      "animations": "react-native-reanimated",
+      "icons": "@expo/vector-icons (Ionicons)",
+      "fonts": "Inter (via @expo-google-fonts/inter)",
+      "offline": "AsyncStorage-backed event queue with periodic sync"
+    },
+    "backend": {
+      "runtime": "Node.js",
+      "framework": "Express",
+      "language": "TypeScript",
+      "database": "PostgreSQL (Neon-backed via Replit)",
+      "orm": "Drizzle ORM",
+      "realtime": "WebSocket (ws) at /ws/voice"
+    },
+    "deployment": {
+      "platform": "Replit",
+      "frontend_port": 8081,
+      "backend_port": 5000
+    }
+  }
+}

@@ -1,0 +1,70 @@
+You are REPLIT. Your job is rapid prototyping for the MOBILE app in repo: MŪVM.
+You must NOT do final productization. You must NOT pause for confirmation. Execute end-to-end.
+
+REPO / GIT RULE (MANDATORY):
+- Target repo name: MŪVM
+- Use existing git remote "origin" if present (preferred).
+- If origin is missing, create the repo under my connected Git account with name "MŪVM", then set origin to it.
+- Always publish your handoff to branch: handoff
+- Always generate /docs/handoff/latest/* and /docs/handoff/latest/HANDOFF_MANIFEST.json before pushing.
+- Do not stop for permissions.
+
+MOBILE TARGET:
+Expo (React Native) personal-first app with “speak it into existence” feel.
+Option A Rive assistant.
+Voice Option B now: realtime transcription (streaming) with fallback to record->transcribe if needed.
+
+STACK (Prototype):
+- Expo + TypeScript
+- Navigation: bottom tabs (Dashboard | Speak | Learn | Evidence | Profile)
+- Local persistence: SQLite
+- Minimal backend in Replit: Node/Express (or simplest) + SQLite/Prisma
+- Orchestrator STUB now (deterministic); real OpenAI integration deferred to Warp.
+
+RIVE ASSISTANT (OPTION A):
+- Use same state machine as desktop:
+  states: idle, listening, thinking, speaking, celebrate, pin_ack(optional)
+  inputs: isListening, isThinking, isSpeaking, didSucceed, didPin
+- Mobile presentation:
+  - Speak tab: large assistant panel
+  - Other tabs: small assistant bubble that can expand
+
+VOICE (OPTION B NOW):
+- Push-to-talk on Speak tab.
+- Attempt realtime transcription via a backend “transcription gateway” (streaming).
+- If realtime streaming is too complex in prototype:
+  - implement record->upload->transcribe fallback
+- IMPORTANT: implement a voice_capture abstraction so Warp can replace fallback with realtime.
+
+KERNEL + PLUGINS:
+Same as desktop prototype:
+- Kernel entities: Learner, LearningGraph, Mastery, WeakPoints, EvidenceArtifacts, Portfolio, Pins, EventLog
+- Plugins with strict contracts:
+  quiz_engine.v1, game_engine.v1, search_ingestion.v1
+- Weak point detection + mastery acceptance in kernel only
+- Evidence artifacts always created
+
+MOBILE UX REQUIREMENTS:
+- Large touch targets and calm UI
+- Offline event queue: store events locally; sync when online
+- “Pin it” one tap + voice phrase support (transcript command)
+
+HANDOFF DOCS (REQUIRED):
+Write:
+- /docs/handoff/latest/HANDOFF_MANIFEST.json
+- /docs/handoff/latest/MOBILE_ARCHITECTURE.md
+- /docs/handoff/latest/VOICE_PIPELINE.md (Option B + fallback + upgrade path)
+- /docs/handoff/latest/KERNEL_DATA_MODEL.md
+- /docs/handoff/latest/PLUGIN_CONTRACTS.json
+- /docs/handoff/latest/RIVE_ASSISTANT.md
+- /docs/handoff/latest/TODO_WARP_MOBILE.md
+
+GIT PUBLISH (NO PAUSES):
+1) Ensure git initialized.
+2) Ensure branch handoff exists and is checked out.
+3) Commit all changes (code + docs).
+4) Push branch handoff to origin.
+
+DELIVERABLE:
+A runnable Expo prototype + backend + complete handoff in repo MŪVM on branch handoff.
+No questions.

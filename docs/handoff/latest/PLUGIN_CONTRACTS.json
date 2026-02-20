@@ -1,0 +1,155 @@
+{
+  "version": "1.0.0",
+  "plugins": {
+    "quiz_engine.v1": {
+      "description": "Generates and grades quizzes for assessment and placement",
+      "functions": {
+        "quiz.create": {
+          "description": "Create a new quiz for a learner",
+          "input": {
+            "session_id": { "type": "string", "required": true },
+            "learner_id": { "type": "string", "required": true },
+            "concept_ids": { "type": "string[]", "required": true },
+            "quiz_type": { "type": "string", "enum": ["placement", "checkpoint", "final"], "default": "placement" },
+            "policy": { "type": "object", "required": false }
+          },
+          "output": {
+            "quiz_id": "string",
+            "session_id": "string",
+            "questions": [{
+              "id": "string",
+              "concept_id": "string",
+              "question_text": "string",
+              "options": "string[]",
+              "correct_index": "number",
+              "difficulty": "number (0-1)"
+            }],
+            "quiz_type": "string"
+          }
+        },
+        "quiz.grade": {
+          "description": "Grade a quiz attempt and propose mastery deltas",
+          "input": {
+            "session_id": { "type": "string", "required": true },
+            "attempt_id": { "type": "string", "required": true },
+            "learner_id": { "type": "string", "required": true },
+            "quiz_id": { "type": "string", "required": true },
+            "responses": {
+              "type": "array",
+              "items": {
+                "question_id": "string",
+                "selected_index": "number"
+              }
+            },
+            "questions": { "type": "array", "description": "Original question payloads" }
+          },
+          "output": {
+            "attempt_id": "string",
+            "score": "number (0-1)",
+            "total_questions": "number",
+            "correct_count": "number",
+            "mastery_results": [{ "accepted": "boolean", "reason": "string?", "final_score": "number?", "final_stability": "number?" }],
+            "artifact_id": "string"
+          }
+        }
+      }
+    },
+    "game_engine.v1": {
+      "description": "Generates interactive learning games targeting weak points",
+      "functions": {
+        "game.generate": {
+          "description": "Generate a game run targeting specific weak points",
+          "input": {
+            "session_id": { "type": "string", "required": true },
+            "learner_id": { "type": "string", "required": true },
+            "weak_point_ids": { "type": "string[]", "required": true },
+            "vibe": { "type": "string", "default": "focused" },
+            "templates_allowed": { "type": "string[]", "default": ["match", "sequence", "fill_blank", "categorize"] },
+            "policy": { "type": "object", "required": false }
+          },
+          "output": {
+            "game_run_id": "string",
+            "session_id": "string",
+            "challenges": [{
+              "id": "string",
+              "type": "match | sequence | fill_blank | categorize",
+              "prompt": "string",
+              "data": "object",
+              "concept_id": "string"
+            }],
+            "vibe": "string",
+            "weak_point_ids": "string[]"
+          }
+        },
+        "game.report_outcome": {
+          "description": "Report game outcome and propose mastery deltas",
+          "input": {
+            "session_id": { "type": "string", "required": true },
+            "game_run_id": { "type": "string", "required": true },
+            "learner_id": { "type": "string", "required": true },
+            "outcome": {
+              "challenge_results": [{
+                "challenge_id": "string",
+                "correct": "boolean",
+                "time_ms": "number"
+              }]
+            },
+            "concept_ids": { "type": "string[]" }
+          },
+          "output": {
+            "game_run_id": "string",
+            "score": "number (0-1)",
+            "mastery_results": [{ "accepted": "boolean", "reason": "string?", "final_score": "number?", "final_stability": "number?" }],
+            "artifact_id": "string"
+          }
+        }
+      }
+    },
+    "search_ingestion.v1": {
+      "description": "Searches and ingests external learning resources",
+      "functions": {
+        "ingest.create_evidence_pack": {
+          "description": "Create an evidence pack from external sources for a topic",
+          "input": {
+            "learner_id": { "type": "string", "required": true },
+            "session_id": { "type": "string", "required": true },
+            "topic": { "type": "string", "required": true },
+            "audience_level": { "type": "string", "default": "beginner" },
+            "source_policy": { "type": "object", "required": false }
+          },
+          "output": {
+            "evidence_pack_id": "string",
+            "topic": "string",
+            "audience_level": "string",
+            "sources": [{
+              "id": "string",
+              "title": "string",
+              "url": "string",
+              "snippet": "string",
+              "reliability": "number (0-1)"
+            }],
+            "version": "number",
+            "artifact_id": "string"
+          }
+        },
+        "ingest.update_evidence_pack": {
+          "description": "Update an existing evidence pack with new sources",
+          "input": {
+            "learner_id": { "type": "string", "required": true },
+            "session_id": { "type": "string", "required": true },
+            "evidence_pack_id": { "type": "string", "required": true },
+            "source_policy": { "type": "object", "required": false }
+          },
+          "output": {
+            "evidence_pack_id": "string",
+            "topic": "string",
+            "audience_level": "string",
+            "sources": "SourceEntry[]",
+            "version": "number",
+            "artifact_id": "string"
+          }
+        }
+      }
+    }
+  }
+}
